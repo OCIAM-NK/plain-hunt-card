@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 595.3 841.9">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #231f20;
+        stroke: #f1f2f2;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <!-- Generator: Adobe Illustrator 28.7.10, SVG Export Plug-In . SVG Version: 1.2.0 Build 236)  -->
+  <g>
+    <g id="Layer_1">
+      <circle class="cls-1" cx="251.7" cy="401.1" r="9.3"/>
+      <path class="cls-1" d="M311,391.8c-19.4,0-23.6-53.7-31.4-71.5-5.3-12.1-16.6-18.2-27.9-18.2-11.3,0-22.5,6.1-27.9,18.2-7.9,17.9-12,71.5-31.4,71.5h118.6Z"/>
+      <rect class="cls-1" x="192.4" y="391.8" width="118.6" height="7.3"/>
+      <path class="cls-1" d="M251.7,284.2c-4.9,0-8.9,4-8.9,8.9s4,8.9,8.9,8.9,8.9-4,8.9-8.9-4-8.9-8.9-8.9ZM251.7,297.2c-2.3,0-4.1-1.8-4.1-4.1s1.8-4.1,4.1-4.1,4.1,1.8,4.1,4.1-1.8,4.1-4.1,4.1Z"/>
+      <line class="cls-1" x1="214.5" y1="354.8" x2="288.8" y2="354.8"/>
+      <line class="cls-1" x1="212.3" y1="363.2" x2="291.1" y2="363.2"/>
+      <rect id="_x3C_Slice_x3E_" class="cls-2" x="173" y="271" width="158" height="145"/>
+    </g>
+  </g>
+</svg>

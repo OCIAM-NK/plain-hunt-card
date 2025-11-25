@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Plain Hunt on 6 – Christmas Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card {
+    position: relative;
+    width: min(1100px, 100vw - 40px);
+    height: min(650px, 100vh - 40px);
+  }
+
+  /* ---------------- BELLS GRID ---------------- */
+
+  .bell-grid {
+    position: absolute;
+    top: 220px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(6, 80px);
+    column-gap: 40px;
+	row-gap: 10px;
+    justify-items: center;
+  }
+
+  .bell {
+    width: 80px;
+    height: 80px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+  }
+
+  .bell-img {
+    width: 800%;
+    height: 800%;
+    pointer-events: none;
+  }
+
+.bell-number {
+    position: absolute;
+    top: -110px;                /* moves the number ABOVE the bell */
+    left: 50%;
+    transform: translateX(-56%);
+    font-size: 2rem;           /* adjust as needed */
+    color: #fff;
+    text-align: left;
+    width: 100%;
+    pointer-events: none;
+}
+
+  .bell.playing {
+    transform: translateY(2px);
+  }
+
+  #ringerCell {
+    grid-column: 3;
+    align-self: start;
+  }
+
+  /* ---------------- RINGER SVG ---------------- */
+
+  #ringerSvg {
+    width: 99px;         /* 10% larger */
+    height: 253px;       /* 10% larger */
+    overflow: visible;
+    margin-top: -100px;
+    transform: translateX(-17px) translateY(0);
+  }
+
+  /* rope: grey, slightly thicker */
+  #ringerSvg .cls-1 {
+    stroke: #939598;
+    stroke-width: 8px;
+    fill: none;
+  }
+
+  /* sally: red, thick */
+  #ringerSvg .cls-2 {
+    stroke: #be1e2d;
+    stroke-width: 18px;
+    fill: none;
+  }
+
+  /* stick man: white */
+  #ringerSvg .cls-3,
+  #ringerSvg .cls-4 {
+    stroke: #ffffff;
+    stroke-width: 3.2px;
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  /* Make sure transforms are relative to their own boxes */
+  #sally,
+  #armsGroup {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Only the sally and hands move on a pull
+     – sally moves more, hands a bit less so they “lose contact” briefly */
+  #ringerSvg.pull #sally {
+    animation: sallyPull 0.4s ease-out;
+  }
+
+  #ringerSvg.pull #armsGroup {
+    animation: handsPull 0.4s ease-out;
+  }
+
+  @keyframes sallyPull {
+    0%   { transform: translateY(0); }
+    40%  { transform: translateY(60px); }
+    100% { transform: translateY(0); }
+  }
+
+  @keyframes handsPull {
+    0%   { transform: translateY(0); }      /* holding */
+    20%  { transform: translateY(0); }      /* slight delay – “let go” as sally moves */
+    60%  { transform: translateY(40px); }   /* follow after the sally */
+    100% { transform: translateY(0); }      /* reconnect */
+  }
+
+  /* ---------------- COURSE DISPLAY ---------------- */
+
+  #course {
+    position: absolute;
+    right: 40px;
+    top: 240px;
+    font-family: Menlo, Monaco, monospace;
+    font-size: 1.8rem;             /* larger */
+    text-align: left;
+  }
+  .course-row { white-space: nowrap; }
+  .course-row .digit {
+    display: inline-block;
+    width: 1ch;
+    text-align: center;
+    margin-right: 0.8ch;           /* more spacing */
+    letter-spacing: 0.1ch;         /* extra separation */
+    color: #fff;
+  }
+  .course-row .digit.active { color: #ff3b3b; }
+
+  /* ---------------- PLAY BUTTON ---------------- */
+
+  #playHunt {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 22px;
+    background: #000;
+    color: #fff;
+    border-radius: 999px;
+    border: 1px solid #fff;
+    cursor: pointer;
+  }
+  #playHunt:hover { background: #111; }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="bell-grid" id="bellGrid">
+
+    <!-- RINGER UNDER BELL 3 -->
+    <div id="ringerCell">
+
+      <!-- Stickman + rope + sally -->
+      <svg id="ringerSvg" viewBox="0 0 260 620">
+
+        <!-- ROPE (single run up to Box 3) -->
+        <g id="ropeGroup">
+
+          <!-- Rope up towards Box 3 -->
+          <line id="fixedUpperRope" class="cls-1"
+                x1="82.1" y1="90"
+                x2="82.1" y2="176.9" />
+
+          <line id="extendRope" class="cls-1"
+                x1="82.1" y1="176.9"
+                x2="82.1" y2="350" />
+
+          <line id="lowerRope" class="cls-1"
+                x1="82.1" y1="350"
+                x2="82.1" y2="555" />
+
+          <!-- Sally (red section – moves to give rope motion illusion) -->
+          <line id="sally" class="cls-2"
+                x1="84" y1="282"
+                x2="84" y2="367" />
+        </g>
+
+        <!-- Stickman (stationary body) -->
+        <g id="bodyGroup">
+          <!-- head -->
+          <circle class="cls-4" cx="184.5" cy="264.5" r="42.8"/>
+
+          <!-- body + legs -->
+          <line class="cls-4" x1="184.5" y1="307.3" x2="184.5" y2="544"/>
+          <line class="cls-4" x1="184.5" y1="420.9" x2="164" y2="537"/>
+          <line class="cls-4" x1="184.5" y1="544" x2="161" y2="569"/>
+          <line class="cls-4" x1="164" y1="537" x2="128" y2="551"/>
+
+          <!-- arms (only part that moves) -->
+          <g id="armsGroup">
+            <line class="cls-4" x1="184.5" y1="352" x2="136" y2="374"/>
+            <line class="cls-4" x1="184.5" y1="336" x2="132" y2="356"/>
+            <!-- forearms / hands gripping the rope -->
+            <line class="cls-4" x1="136" y1="374" x2="91" y2="346"/>
+            <line class="cls-3" x1="132" y1="356" x2="90" y2="325"/>
+          </g>
+        </g>
+
+      </svg>
+      <!-- END STICKMAN SVG -->
+
+    </div>
+  </div>
+
+  <div id="course"></div>
+
+  <button id="playHunt">Play Plain Hunt</button>
+</div>
+
+<script>
+/* ------------ AUDIO SETUP ------------ */
+const bellsAvailable = {
+  1: "bells/Bell 1.wav",
+  2: "bells/Bell 2.wav",
+  3: "bells/Bell 3.wav",
+  4: "bells/Bell 4.wav",
+  5: "bells/Bell 5.wav",
+  6: "bells/Bell 6.wav"
+};
+
+const audioMap = {};
+for (let n = 1; n <= 6; n++) {
+  const a = new Audio(bellsAvailable[n]);
+  a.preload = "auto";
+  audioMap[n] = a;
+}
+
+/* ------------ BUILD BELL BUTTONS ------------ */
+const bellGrid = document.getElementById("bellGrid");
+
+for (let n = 1; n <= 6; n++) {
+  const btn = document.createElement("button");
+  btn.className = "bell";
+  btn.dataset.bell = n;
+
+  // Insert bell svg + number
+  btn.innerHTML = `
+    <img src="bell.svg" class="bell-img" alt="" aria-hidden="true">
+    <span class="bell-number">${n}</span>
+  `;
+
+  btn.addEventListener("mousedown", () => {
+    ringBell(n);
+    if (n === 3) pullRinger();
+  });
+
+  btn.addEventListener("mouseup", () => stopBell(n));
+  btn.addEventListener("mouseleave", () => stopBell(n));
+
+  bellGrid.insertBefore(btn, document.getElementById("ringerCell"));
+}
+
+function ringBell(n) {
+  const audio = audioMap[n];
+  const btn = document.querySelector(`.bell[data-bell="${n}"]`);
+  audio.currentTime = 0;
+  audio.play();
+  btn.classList.add("playing");
+  setTimeout(() => btn.classList.remove("playing"), 180);
+}
+
+function stopBell(n) {
+  const audio = audioMap[n];
+  audio.pause();
+  audio.currentTime = 0;
+  const btn = document.querySelector(`.bell[data-bell="${n}"]`);
+  if (btn) btn.classList.remove("playing");
+}
+
+/* ------------ RINGER ANIMATION ------------ */
+const ringerSvg = document.getElementById("ringerSvg");
+
+function pullRinger() {
+  ringerSvg.classList.add("pull");
+  setTimeout(() => ringerSvg.classList.remove("pull"), 400); // match keyframe duration
+}
+
+/* ------------ PLAIN HUNT COURSE ------------ */
+const plainHunt6 = [
+  "123456","214365","241635","426153","462513",
+  "645231","654321","563412","536142","351624",
+  "315264","132546","123456"
+];
+
+const courseContainer = document.getElementById("course");
+const courseDigits = [];
+
+plainHunt6.forEach((rowStr, rowIdx) => {
+  const rowDiv = document.createElement("div");
+  rowDiv.className = "course-row";
+  const spans = [];
+  rowStr.split("").forEach(ch => {
+    const span = document.createElement("span");
+    span.className = "digit";
+    span.textContent = ch;
+    rowDiv.appendChild(span);
+    spans.push(span);
+  });
+  courseContainer.appendChild(rowDiv);
+  courseDigits[rowIdx] = spans;
+});
+
+function clearDigitHighlights() {
+    courseDigits.flat().forEach(s => {
+    if (parseInt(s.textContent.trim()) !== 3) {
+      s.classList.remove("active");
+    }
+  });
+}
+
+/* ------------ AUTO PLAY PLAIN HUNT ------------ */
+const playBtn = document.getElementById("playHunt");
+let isPlaying = false;
+
+playBtn.addEventListener("click", () => {
+  if (isPlaying) return;
+  isPlaying = true;
+  playBtn.disabled = true;
+  playPlainHunt();
+});
+
+function playPlainHunt() {
+  const beatMs = 420;
+  let row = 0, col = 0;
+
+  function step() {
+    if (row >= plainHunt6.length) {
+      isPlaying = false;
+      playBtn.disabled = false;
+      clearDigitHighlights();
+      return;
+    }
+
+    const bellNum = parseInt(plainHunt6[row][col], 10);
+    clearDigitHighlights();
+    courseDigits[row][col].classList.add("active");
+
+    ringBell(bellNum);
+    if (bellNum === 3) pullRinger();
+
+    col++;
+    if (col >= 6) { col = 0; row++; }
+
+    setTimeout(step, beatMs);
+  }
+  step();
+}
+</script>
+
+</body>
+</html>
